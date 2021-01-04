@@ -8,11 +8,14 @@ import com.udacity.jdnd.course3.critter.pet.PetType;
 import com.udacity.jdnd.course3.critter.schedule.ScheduleController;
 import com.udacity.jdnd.course3.critter.schedule.ScheduleDTO;
 import com.udacity.jdnd.course3.critter.user.*;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -20,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This is a set of functional tests to validate the basic capabilities desired for this application.
@@ -31,6 +35,7 @@ import java.util.stream.IntStream;
  */
 @Transactional
 @SpringBootTest(classes = CritterApplication.class)
+@TestMethodOrder(OrderAnnotation.class)
 public class CritterFunctionalTest {
 
     @Autowired
@@ -43,6 +48,7 @@ public class CritterFunctionalTest {
     private ScheduleController scheduleController;
 
     @Test
+    @Order(10)
     public void testCreateCustomer(){
         CustomerDTO customerDTO = createCustomerDTO();
         CustomerDTO newCustomer = userController.saveCustomer(customerDTO);
@@ -53,6 +59,7 @@ public class CritterFunctionalTest {
     }
 
     @Test
+    @Order(20)
     public void testCreateEmployee(){
         EmployeeDTO employeeDTO = createEmployeeDTO();
         EmployeeDTO newEmployee = userController.saveEmployee(employeeDTO);
@@ -63,6 +70,7 @@ public class CritterFunctionalTest {
     }
 
     @Test
+    @Order(30)
     public void testAddPetsToCustomer() {
         CustomerDTO customerDTO = createCustomerDTO();
         CustomerDTO newCustomer = userController.saveCustomer(customerDTO);
@@ -82,12 +90,17 @@ public class CritterFunctionalTest {
         Assertions.assertEquals(newPet.getName(), pets.get(0).getName());
 
         //check to make sure customer now also contains pet
-        CustomerDTO retrievedCustomer = userController.getAllCustomers().get(0);
+        final Optional<CustomerDTO> result = userController.getAllCustomers().stream()
+                .filter(dto -> dto.getId() == newCustomer.getId()).findFirst();
+        Assertions.assertTrue(result.isPresent());
+
+        CustomerDTO retrievedCustomer = result.get();
         Assertions.assertTrue(retrievedCustomer.getPetIds() != null && retrievedCustomer.getPetIds().size() > 0);
         Assertions.assertEquals(retrievedCustomer.getPetIds().get(0), retrievedPet.getId());
     }
 
     @Test
+    @Order(40)
     public void testFindPetsByOwner() {
         CustomerDTO customerDTO = createCustomerDTO();
         CustomerDTO newCustomer = userController.saveCustomer(customerDTO);
@@ -106,6 +119,7 @@ public class CritterFunctionalTest {
     }
 
     @Test
+    @Order(50)
     public void testFindOwnerByPet() {
         CustomerDTO customerDTO = createCustomerDTO();
         CustomerDTO newCustomer = userController.saveCustomer(customerDTO);
@@ -120,6 +134,7 @@ public class CritterFunctionalTest {
     }
 
     @Test
+    @Order(60)
     public void testChangeEmployeeAvailability() {
         EmployeeDTO employeeDTO = createEmployeeDTO();
         EmployeeDTO emp1 = userController.saveEmployee(employeeDTO);
@@ -133,6 +148,7 @@ public class CritterFunctionalTest {
     }
 
     @Test
+    @Order(70)
     public void testFindEmployeesByServiceAndTime() {
         EmployeeDTO emp1 = createEmployeeDTO();
         EmployeeDTO emp2 = createEmployeeDTO();
@@ -170,6 +186,7 @@ public class CritterFunctionalTest {
     }
 
     @Test
+    @Order(80)
     public void testSchedulePetsForServiceWithEmployee() {
         EmployeeDTO employeeTemp = createEmployeeDTO();
         employeeTemp.setDaysAvailable(Sets.newHashSet(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY));
@@ -194,6 +211,7 @@ public class CritterFunctionalTest {
     }
 
     @Test
+    @Order(90)
     public void testFindScheduleByEntities() {
         ScheduleDTO sched1 = populateSchedule(1, 2, LocalDate.of(2019, 12, 25), Sets.newHashSet(EmployeeSkill.FEEDING, EmployeeSkill.WALKING));
         ScheduleDTO sched2 = populateSchedule(3, 1, LocalDate.of(2019, 12, 26), Sets.newHashSet(EmployeeSkill.PETTING));

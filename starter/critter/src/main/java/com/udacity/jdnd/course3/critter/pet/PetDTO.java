@@ -1,12 +1,13 @@
 package com.udacity.jdnd.course3.critter.pet;
 
 import java.time.LocalDate;
+import org.springframework.beans.BeanUtils;
 
 /**
- * Represents the form that pet request and response data takes. Does not map
- * to the database directly.
+ * Represents the form that pet request and response data takes. Does not map to the database directly.
  */
 public class PetDTO {
+
     private long id;
     private PetType type;
     private String name;
@@ -60,5 +61,18 @@ public class PetDTO {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public static Pet toEntity(PetDTO dto) {
+        Pet pet = new Pet();
+        BeanUtils.copyProperties(dto, pet);
+        return pet;
+    }
+
+    public static PetDTO toDTO(Pet pet) {
+        PetDTO dto = new PetDTO();
+        BeanUtils.copyProperties(pet, dto);
+        dto.setOwnerId(pet.getCustomer().getId());
+        return dto;
     }
 }

@@ -2,16 +2,29 @@ package com.udacity.jdnd.course3.critter.user;
 
 import java.time.DayOfWeek;
 import java.util.Set;
-import org.springframework.beans.BeanUtils;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
-/**
- * Represents the form that employee request and response data takes. Does not map to the database directly.
- */
-public class EmployeeDTO {
+@Entity
+public class Employee {
 
+    @Id
+    @GeneratedValue
     private long id;
+
     private String name;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
     private Set<EmployeeSkill> skills;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Enumerated(EnumType.STRING)
     private Set<DayOfWeek> daysAvailable;
 
     public long getId() {
@@ -44,17 +57,5 @@ public class EmployeeDTO {
 
     public void setDaysAvailable(Set<DayOfWeek> daysAvailable) {
         this.daysAvailable = daysAvailable;
-    }
-
-    public static Employee toEntity(EmployeeDTO dto) {
-        Employee employee = new Employee();
-        BeanUtils.copyProperties(dto, employee);
-        return employee;
-    }
-
-    public static EmployeeDTO toDTO(Employee employee) {
-        EmployeeDTO dto = new EmployeeDTO();
-        BeanUtils.copyProperties(employee, dto);
-        return dto;
     }
 }
